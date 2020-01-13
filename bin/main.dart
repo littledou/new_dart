@@ -29,7 +29,8 @@ Future main() async {
     if (request.uri.pathSegments.last.contains('html')) {
       staticFiles.serveFile(File(p.join(webFile.path, '404.html')), request);
     } else {
-      ControllerManager.manager.requestServer(request);
+      //handleRequest(request);//手动处理请求
+      ControllerManager.manager.requestServer(request);//利用注解处理请求
     }
   };
 
