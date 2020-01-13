@@ -9,7 +9,7 @@ Future main() async {
   var staticFiles = VirtualDirectory('.');
 
   var server = await HttpServer.bind(InternetAddress.loopbackIPv4, 4046);
-  print('Listening on http://${server.address.address}:${server.port}/');
+  print('file Listening on http://${server.address.address}:${server.port}/');
   await for (var request in server) {
     staticFiles.serveFile(targetFile, request);
   }

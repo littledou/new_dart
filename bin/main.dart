@@ -1,5 +1,6 @@
-import 'package:dart_hello_server/log/Log.dart';
+import 'dart:convert';
 import 'dart:io';
+import 'package:dart_hello_server/logutil/Log.dart';
 import 'package:http_server/http_server.dart';
 import 'package:path/path.dart' as p;
 
@@ -8,7 +9,7 @@ var webFile =
 
 Future main() async {
   print('${webFile.path}');
-  
+
   //获取webApp根目录
   var staticFiles = VirtualDirectory(webFile.path);
   //允许目录监听
@@ -28,7 +29,7 @@ Future main() async {
     }
   };
 
-  var server = await HttpServer.bind(InternetAddress.loopbackIPv4, 4040);
+  var server = await HttpServer.bind(InternetAddress.anyIPv6, 4040);
   print('main Listening on http://${server.address.address}:${server.port}/');
   await for (var request in server) {
     writeHeaders(request);
@@ -41,6 +42,8 @@ void handleRequest(HttpRequest request) async {
       'Received request ${request.method}: ${request.uri.path} , ${request.uri.toString()}');
   if (request.method == 'GET') {
     handleGet(request);
+  } else if (request.method == 'POST') {
+    await handlePost(request);
   }
   await request.response.close();
 }
@@ -49,6 +52,33 @@ void handleGet(HttpRequest request) {
   request.response
     ..statusCode = HttpStatus.ok
     ..write('Wrote data for: GET - ${request.uri.path}');
+}
+
+void handlePost(HttpRequest req) async {
+  switch (req.uri.path) {
+    case '/postjson': //解析json
+      final content = await utf8.decoder.bind(req).join();
+      var data = jsonDecode(content) as Map;
+      print('content: ${content}，name: - ${data['name']}');
+
+      req.response
+        ..statusCode = HttpStatus.ok
+        ..write('Wrote data for json.');
+      break;
+
+    case '/postform': //解析form
+      req.response
+        ..statusCode = HttpStatus.ok
+        ..write('Wrote data for form.');
+      break;
+
+    case '/postmulti': //解析multi
+      req.response
+        ..statusCode = HttpStatus.ok
+        ..write('Wrote data for multi.');
+      break;
+    default:
+  }
 }
 
 void writeHeaders(HttpRequest request) {
