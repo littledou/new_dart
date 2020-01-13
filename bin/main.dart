@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dart_hello_server/entity/controller/ControllerManager.dart';
+import 'package:dart_hello_server/entity/controller/UserController.dart';
 import 'package:dart_hello_server/logutil/Log.dart';
 import 'package:http_server/http_server.dart';
 import 'package:path/path.dart' as p;
@@ -9,6 +11,8 @@ var webFile =
 
 Future main() async {
   print('${webFile.path}');
+
+  ControllerManager.manager.addController(UserController());
 
   //获取webApp根目录
   var staticFiles = VirtualDirectory(webFile.path);
@@ -25,7 +29,7 @@ Future main() async {
     if (request.uri.pathSegments.last.contains('html')) {
       staticFiles.serveFile(File(p.join(webFile.path, '404.html')), request);
     } else {
-      handleRequest(request);
+      ControllerManager.manager.requestServer(request);
     }
   };
 
